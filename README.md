@@ -1,78 +1,118 @@
-# Medoc OPD Token Allocation Engine
+# 🏥 Medoc OPD Token Allocation Engine
 
-A FastAPI + SQLite based backend system to manage OPD token booking and queue handling for doctors.
-It supports doctor creation, time slot scheduling, token booking, queue viewing, and appointment serving/cancellation.
-
----
-
-## 🚀 Features
-
-- Create and list doctors
-- Create and list doctor time slots
-- Book OPD token (ONLINE / WALK_IN)
-- Auto token allocation per slot (incremental)
-- Queue display (only active BOOKED tokens)
-- Serve an appointment
-- Cancel an appointment
+A FastAPI-based backend system to manage **OPD token booking**, **doctor slot scheduling**, and **queue tracking** with token allocation.
 
 ---
 
-## 🛠 Tech Stack
+## ✅ Features
 
-- Python 3
-- FastAPI
-- SQLAlchemy ORM
-- SQLite
-- Pydantic
+- 👨‍⚕️ Create / List Doctors
+- 🕒 Create / View Doctor Time Slots
+- 🎟️ Book OPD Token (ONLINE / WALK_IN)
+- 📌 Auto Token Allocation (slot-wise)
+- ⏳ Estimated consultation time calculation
+- 📋 Live Queue Display (only BOOKED tokens)
+- ✅ Serve / ❌ Cancel appointments
 
 ---
 
-## 📦 Setup Instructions
+## 🧰 Tech Stack
 
-### 1️⃣ Clone the repository
+| Component | Used |
+|----------|------|
+| Backend  | FastAPI |
+| Database | SQLite |
+| ORM      | SQLAlchemy |
+| Docs UI  | Swagger (OpenAPI) |
+| Server   | Uvicorn |
+
+---
+
+## 📂 Project Structure
+
+medoc-opd-token-engine/
+│── app/
+│ ├── api/
+│ │ ├── v1/
+│ │ │ ├── routes.py
+│ │ │ ├── booking.py
+│ ├── core/
+│ │ ├── database.py
+│ ├── models/
+│ │ ├── entities.py
+│ ├── schemas/
+│ │ ├── booking.py
+│ │ ├── queue.py
+│ ├── main.py
+│── requirements.txt
+│── README.md
+
+
+---
+
+## ⚙️ Setup & Installation
+
+### ✅ 1. Clone Repo
 ```bash
 git clone https://github.com/Sanjayarjun/medoc-opd-token-engine.git
 cd medoc-opd-token-engine
-2️⃣ Create virtual environment (recommended)
+✅ 2. Create Virtual Environment
 python -m venv venv
+✅ 3. Activate Environment
+Windows:
+
 venv\Scripts\activate
-3️⃣ Install dependencies
+Mac/Linux:
+
+source venv/bin/activate
+✅ 4. Install Requirements
 pip install -r requirements.txt
-4️⃣ Run the server
+▶️ Run Project
 uvicorn app.main:app --reload
 Server runs at:
 
-http://127.0.0.1:8000
-Swagger Docs:
+API Base: http://127.0.0.1:8000
 
-http://127.0.0.1:8000/docs
-📌 API Endpoints
-✅ Doctors
+Swagger Docs: http://127.0.0.1:8000/docs
+
+✅ API Endpoints (Quick View)
+👨‍⚕️ Doctors
 Method	Endpoint	Description
-GET	/api/v1/doctors	List all doctors
-POST	/api/v1/doctors	Create a doctor
-Example create doctor:
+GET	/api/v1/doctors	List Doctors
+POST	/api/v1/doctors	Create Doctor
+🕒 Slots
+Method	Endpoint	Description
+GET	/api/v1/doctors/{doctor_id}/slots	Get all slots
+POST	/api/v1/doctors/{doctor_id}/slots	Create new slot
+🎟️ Booking
+Method	Endpoint	Description
+POST	/api/v1/book	Book token
+📋 Queue
+Method	Endpoint	Description
+GET	/api/v1/doctors/{doctor_id}/queue	Get live queue
+✅ Appointment Actions
+Method	Endpoint	Description
+PATCH	/api/v1/appointments/{id}/serve	Serve appointment
+PATCH	/api/v1/appointments/{id}/cancel	Cancel appointment
+🧪 Sample API Testing Flow (Swagger)
+✅ Step 1: Create Doctor
+POST /api/v1/doctors
 
 {
   "name": "Dr Raj",
   "specialization": "Cardiology",
   "doctor_code": "DOC001"
 }
-✅ Slots
-Method	Endpoint	Description
-GET	/api/v1/doctors/{doctor_id}/slots	Get doctor slots
-POST	/api/v1/doctors/{doctor_id}/slots	Create slot
-Example create slot:
+✅ Step 2: Create Slot
+POST /api/v1/doctors/{doctor_id}/slots
 
 {
   "start_time": "2026-01-29T10:00:00",
   "end_time": "2026-01-29T12:00:00",
   "capacity": 10
 }
-✅ Booking (Token Allocation)
-Method	Endpoint	Description
-POST	/api/v1/book	Book token for doctor
-Example book token:
+✅ Step 3: Book Token
+POST /api/v1/book
 
 {
   "doctor_id": 1,
@@ -80,30 +120,26 @@ Example book token:
   "patient_phone": "9876543210",
   "source": "ONLINE"
 }
-Response:
+✅ Step 4: View Queue
+GET /api/v1/doctors/1/queue
 
-{
-  "appointment_id": 1,
-  "token_number": 1,
-  "slot_id": 1,
-  "estimated_time": "2026-01-29T10:00:00"
-}
-✅ Queue
-Method	Endpoint	Description
-GET	/api/v1/doctors/{doctor_id}/queue	View queue for doctor
-Queue shows only active BOOKED tokens.
+✅ Step 5: Serve / Cancel Appointment
+Use real appointment_id from booking response.
 
-✅ Appointments
-Method	Endpoint	Description
-PATCH	/api/v1/appointments/{appointment_id}/serve	Mark appointment as SERVED
-PATCH	/api/v1/appointments/{appointment_id}/cancel	Cancel appointment
-✅ Notes
-Token allocation is handled per slot.
+Serve:
+PATCH /api/v1/appointments/{id}/serve
 
-Token numbers are generated using:
-max(existing_token_number) + 1
+Cancel:
+PATCH /api/v1/appointments/{id}/cancel
 
-Queue only includes appointments with status BOOKED.
+📌 Notes
+Token number is allocated slot-wise using:
+
+max(token_number) + 1
+
+Queue shows only BOOKED tokens
+
+Served or Cancelled tokens won't appear in queue
 
 👤 Author
 Sanjay Arjun
@@ -112,12 +148,14 @@ GitHub: https://github.com/Sanjayarjun
 
 ---
 
-## Next (Important)
-After pasting README:
-1) Save file
-2) Commit and push
+## ✅ Now push this README into GitHub
+
+Run these commands in your project folder:
 
 ```bash
-git add README.md
-git commit -m "Add project README"
-git push
+git init
+git add .
+git commit -m "Added README and final submission"
+git branch -M main
+git remote add origin https://github.com/Sanjayarjun/medoc-opd-token-engine.git
+git push -u origin main
