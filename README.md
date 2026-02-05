@@ -1,4 +1,4 @@
-# 🏥 Medoc OPD Token Allocation Engine
+# 🏥 Medical OPD Token Allocation Engine
 
 A FastAPI-based backend system to manage **OPD token booking**, **doctor slot scheduling**, and **queue tracking** with token allocation.
 
